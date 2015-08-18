@@ -1,19 +1,19 @@
 module ObfuscateId
   def obfuscate_id(options = {})
-    require 'scatter_swap'
+    require 'hashids'
 
-    extend ClassMethods 
+    extend ClassMethods
     include InstanceMethods
     cattr_accessor :obfuscate_id_spin
     self.obfuscate_id_spin = (options[:spin] || obfuscate_id_default_spin)
   end
 
   def self.hide(id, spin)
-    ScatterSwap.hash(id, spin)
+    Hashids.new(spin.to_s).encode(id)
   end
 
   def self.show(id, spin)
-    ScatterSwap.reverse_hash(id, spin)
+    Hashids.new(spin.to_s).decode(id).first
   end
 
 
@@ -43,7 +43,7 @@ module ObfuscateId
     # This makes it easy to drop obfuscate_id onto any model
     # and produce different obfuscated ids for different models
     def obfuscate_id_default_spin
-      alphabet = Array("a".."z") 
+      alphabet = Array("a".."z")
       number = name.split("").collect do |char|
         alphabet.index(char)
       end
